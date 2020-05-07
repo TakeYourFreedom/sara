@@ -97,11 +97,13 @@ struct client {
 
 struct desktop {
 	float msize;
+	float mhsize;
 	layout* curlayout;
 };
 
 struct monitor {
 	float msize;
+	float mhsize;
 	int curdesk;
 	int mx, my, mh, mw, wy, wh;
 	int num;
@@ -1087,11 +1089,13 @@ createmon(int num, int x, int y, int w, int h){
 	/* Default to first layout */
 	m->curlayout = (layout*) &layouts[0];
 	m->msize = m->mw * MASTER_SIZE;
+	m->mhsize = m->wh * MASTER_SIZE;
 
 	m->desks = ecalloc(NUMTAGS, sizeof(desktop));
 	for (i=0;i < NUMTAGS;i++){
 		m->desks[i].curlayout = m->curlayout;
 		m->desks[i].msize = m->msize;
+		m->desks[i].mhsize = m-> mhsize;
 	}
 
 	/* Default to first desktop */
@@ -1296,15 +1300,20 @@ changemsize(const Arg arg){
 			|| ((curmon->msize > 0.05 * curmon->mw) && (parg.f < 0)) )
 		? parg.f * curmon->mw : 0;
 
+	curmon->mhsize += ( ((curmon->mhsize < 0.95 * curmon->wh) && (parg.f > 0))
+			|| ((curmon->mhsize > 0.05 * curmon->wh) && (parg.f < 0)) )
+		? parg.f * curmon->wh : 0;
 	arrange(curmon);
 }
 
 void
 loaddesktop(int i){
 	curmon->desks[curmon->curdesk].msize = curmon->msize;
+	curmon->desks[curmon->curdesk].mhsize = curmon->mhsize;
 	curmon->desks[curmon->curdesk].curlayout = curmon->curlayout;
 
 	curmon->msize = curmon->desks[i].msize;
+	curmon->mhsize = curmon->desks[i].mhsize;
 	curmon->curlayout = curmon->desks[i].curlayout;
 }
 
